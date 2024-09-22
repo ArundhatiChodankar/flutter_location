@@ -72,7 +72,7 @@ class _LocationPageState extends State<LocationPage> {
     }
   }
 
-  Future<void> imageUpload(PlatformFile file, String fileName) async {
+  Future<void> imageUpload(Uint8List? file, String fileName) async {
     String? mimeType = mime(fileName);
     String? mimee = mimeType?.split('/')[0];
     String? type = mimeType?.split('/')[1];
@@ -81,7 +81,8 @@ class _LocationPageState extends State<LocationPage> {
       Dio dio = Dio();
       dio.options.headers["Content-Type"] = "multipart/form-data";
       FormData formData = FormData.fromMap({
-        'image':await MultipartFile.fromFile(file.path.toString(), filename: fileName, contentType: DioMediaType(mimee!, type!), ),
+        // 'image':await MultipartFile.fromFile(file.path.toString(), filename: fileName, contentType: DioMediaType(mimee!, type!), ),
+        'image': MultipartFile.fromBytes(file!, filename: fileName, contentType: DioMediaType(mimee!, type!), ),
         'name':fileName
       });
       Response response = await dio
@@ -156,6 +157,7 @@ class _LocationPageState extends State<LocationPage> {
               child: ElevatedButton(
                 onPressed: () async {
                   result = await FilePicker.platform.pickFiles(
+                      withData: true,
                       allowMultiple: false,
                       type: FileType.image);
                   if (result == null) {
@@ -164,7 +166,7 @@ class _LocationPageState extends State<LocationPage> {
                     setState(() {});
                     for (var element in result!.files) {
                       print(element.name);
-                      imageUpload(element, element.name);
+                      imageUpload(element.bytes, element.name);
                     }
                   }
                   }, child: const Text("Pick Image"),
