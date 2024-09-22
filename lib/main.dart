@@ -1,6 +1,13 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'service.dart';
+import 'package:mime_type/mime_type.dart';
+
 
 void main() => runApp(const MyApp());
 
@@ -24,6 +31,60 @@ class LocationPage extends StatefulWidget {
 
 class _LocationPageState extends State<LocationPage> {
   String location = 'Press button to get location';
+  List images = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+     getImages();
+  }
+
+
+
+  Future<void> getImages() async {
+    try {
+      final response = await APIService.instance.request(
+        '/flutter/image',
+        DioMethod.get,
+        contentType: 'application/json',
+      );
+      if (response.statusCode == 200) {
+        print('API call successful: ${response.data}');
+        images = response.data;
+        setState(() {
+
+        });
+      } else {
+        print('API call failed: ${response.statusMessage}');
+      }
+    } catch (e) {
+      print('Network error occurred: $e');
+    }
+  }
+
+  Future<void> imageUpload(PlatformFile file, String fileName) async {
+    String? mimeType = mime(fileName);
+    String? mimee = mimeType?.split('/')[0];
+    String? type = mimeType?.split('/')[1];
+
+    try {
+      Dio dio = Dio();
+      dio.options.headers["Content-Type"] = "multipart/form-data";
+      FormData formData = FormData.fromMap({
+        'image':await MultipartFile.fromFile(file.path.toString(), filename: fileName, contentType: DioMediaType(mimee!, type!), ),
+        'name':fileName
+      });
+      Response response = await dio
+          .post('http://178.128.147.172:3000/flutter/image', data: formData)
+          .catchError((e) => print(e.response.toString()));
+    } catch (e) {
+      print('Network error occurred: $e');
+    }
+    finally{
+      getImages();
+    }
+  }
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -60,23 +121,63 @@ class _LocationPageState extends State<LocationPage> {
     });
   }
 
+  FilePickerResult? result;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: const Text(kIsWeb ? 'Location from Web' : 'Location from App'),
+        title: const Text(kIsWeb ? 'LCNF Web' : 'LCNF App'),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text(location),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(location)),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _getCurrentLocation,
               child: const Text('Get Location'),
             ),
+            ElevatedButton(
+                onPressed: () async {
+                  result = await FilePicker.platform.pickFiles(
+                      allowMultiple: false,
+                      type: FileType.image);
+                  if (result == null) {
+                     print("No file selected");
+                  } else {
+                    setState(() {});
+                    for (var element in result!.files) {
+                      print(element.name);
+                      imageUpload(element, element.name);
+                    }
+                  }
+                  }, child: const Text("Pick Image"),
+              ),
+            Expanded(
+                child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(20),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  children:
+                    images.map((value) {
+                      return Container(
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.all(8),
+                        decoration: BoxDecoration(border: Border.all(color: Colors.black),),
+                        // child: Image.network('https://picsum.photos/250?image=9'),
+                        child: Image.network('${APIService.instance.baseUrl}/${value["url"]}'),
+
+                      );
+                    }).toList(),
+              )
+            )
           ],
         ),
       ),
