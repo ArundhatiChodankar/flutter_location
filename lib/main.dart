@@ -88,17 +88,17 @@ class _LocationPageState extends State<LocationPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Location Services Disabled'),
-          content: Text('Please enable location services to use this feature.'),
+          title: const Text('Location Services Disabled'),
+          content: const Text('Please enable location services to use this feature.'),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
