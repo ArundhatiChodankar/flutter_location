@@ -30,7 +30,7 @@ class LocationPage extends StatefulWidget {
 }
 
 class _LocationPageState extends State<LocationPage> {
-  String location = 'Press button to get location';
+  String location = 'Click on Get Location to see current location';
   List images = [];
 
   @override
@@ -76,7 +76,7 @@ class _LocationPageState extends State<LocationPage> {
         'name':fileName
       });
       Response response = await dio
-          .post('http://178.128.147.172:3000/flutter/image', data: formData)
+          .post('https://lcnf.online:3000/flutter/image', data: formData)
           .catchError((e) => print(e.response.toString()));
     } catch (e) {
       print('Network error occurred: $e');
@@ -142,7 +142,9 @@ class _LocationPageState extends State<LocationPage> {
               onPressed: _getCurrentLocation,
               child: const Text('Get Location'),
             ),
-            ElevatedButton(
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: ElevatedButton(
                 onPressed: () async {
                   result = await FilePicker.platform.pickFiles(
                       allowMultiple: false,
@@ -157,6 +159,7 @@ class _LocationPageState extends State<LocationPage> {
                     }
                   }
                   }, child: const Text("Pick Image"),
+                ),
               ),
             Expanded(
                 child: GridView.count(
@@ -172,7 +175,7 @@ class _LocationPageState extends State<LocationPage> {
                         margin: EdgeInsets.all(8),
                         decoration: BoxDecoration(border: Border.all(color: Colors.black),),
                         // child: Image.network('https://picsum.photos/250?image=9'),
-                        child: Image.network('${APIService.instance.baseUrl}/${value["url"]}'),
+                        child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
 
                       );
                     }).toList(),

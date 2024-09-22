@@ -11,10 +11,10 @@ class APIService {
   String get baseUrl {
 
     if (kDebugMode) {
-      return 'http://178.128.147.172:3000';
+      return 'https://lcnf.online:3000';
     }
 
-    return 'http://178.128.147.172:3000';
+    return 'https://lcnf.online:3000';
   }
 
   Future<Response> request(
