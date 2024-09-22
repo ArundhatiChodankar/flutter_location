@@ -39,6 +39,7 @@ dependencies:
   file_picker: ^8.1.2
   dio: ^5.7.0
   mime_type: ^1.0.1
+  signature: ^5.5.0
 
 dev_dependencies:
   flutter_test:

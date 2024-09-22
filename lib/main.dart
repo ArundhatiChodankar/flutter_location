@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'service.dart';
 import 'package:mime_type/mime_type.dart';
+import 'package:signature/signature.dart';
 
 class MyHttpOverrides extends HttpOverrides{
   @override
@@ -41,26 +42,34 @@ class LocationPage extends StatefulWidget {
 class _LocationPageState extends State<LocationPage> {
   String location = 'Click on Get Location to see current location';
   List images = [];
+  List signatures = [];
 
   @override
   void initState() {
     super.initState();
-
-     getImages();
+     getImages(false);
+     getImages(true);
   }
 
 
 
-  Future<void> getImages() async {
+  Future<void> getImages(bool isSignature) async {
+    String apiUrl = isSignature ? '/flutter/signature' : '/flutter/image';
+
     try {
       final response = await APIService.instance.request(
-        '/flutter/image',
+        apiUrl,
         DioMethod.get,
         contentType: 'application/json',
       );
       if (response.statusCode == 200) {
         print('API call successful: ${response.data}');
-        images = response.data;
+        if(isSignature) {
+          signatures = response.data;
+        }
+        else {
+          images = response.data;
+        }
         setState(() {
 
         });
@@ -72,10 +81,12 @@ class _LocationPageState extends State<LocationPage> {
     }
   }
 
-  Future<void> imageUpload(Uint8List? file, String fileName) async {
+  Future<void> imageUpload(Uint8List? file, String fileName, bool isSignature) async {
     String? mimeType = mime(fileName);
     String? mimee = mimeType?.split('/')[0];
     String? type = mimeType?.split('/')[1];
+
+    String apiUrl = isSignature ? 'https://lcnf.online:3000/flutter/signature' : 'https://lcnf.online:3000/flutter/image';
 
     try {
       Dio dio = Dio();
@@ -86,13 +97,13 @@ class _LocationPageState extends State<LocationPage> {
         'name':fileName
       });
       Response response = await dio
-          .post('https://lcnf.online:3000/flutter/image', data: formData)
+          .post(apiUrl, data: formData)
           .catchError((e) => print(e.response.toString()));
     } catch (e) {
       print('Network error occurred: $e');
     }
     finally{
-      getImages();
+      isSignature ? getImages(true) : getImages(false);
     }
   }
 
@@ -133,6 +144,19 @@ class _LocationPageState extends State<LocationPage> {
 
   FilePickerResult? result;
 
+  final SignatureController _controller = SignatureController(
+    penStrokeWidth: 5,
+    penColor: Colors.red,
+    exportBackgroundColor: Colors.blue,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +190,7 @@ class _LocationPageState extends State<LocationPage> {
                     setState(() {});
                     for (var element in result!.files) {
                       print(element.name);
-                      imageUpload(element.bytes, element.name);
+                      imageUpload(element.bytes, element.name, false);
                     }
                   }
                   }, child: const Text("Pick Image"),
@@ -191,7 +215,52 @@ class _LocationPageState extends State<LocationPage> {
                       );
                     }).toList(),
               )
-            )
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child:
+                Signature(
+                  controller: _controller,
+                  height: 250,
+                  backgroundColor: Colors.black12,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child:
+              ElevatedButton(
+                onPressed: () async {
+                  if (_controller.isNotEmpty) {
+                    final Uint8List? data =
+                    await _controller.toPngBytes();
+                    if (data != null) {
+                      await imageUpload(data, 'Signature.png', true);
+                    }
+                  }
+                },
+                child: const Text('Save Signature'),
+              ),
+            ),
+            Expanded(
+                child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(20),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  children:
+                  signatures.map((value) {
+                    return Container(
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.all(8),
+                      decoration: BoxDecoration(border: Border.all(color: Colors.black),),
+                      // child: Image.network('https://picsum.photos/250?image=9'),
+                      child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
+
+                    );
+                  }).toList(),
+                )
+            ),
           ],
         ),
       ),
