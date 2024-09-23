@@ -152,9 +152,134 @@ class _LocationPageState extends State<LocationPage> {
 
   @override
   void dispose() {
+
     _controller.dispose();
     super.dispose();
   }
+
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       backgroundColor: Colors.blue,
+  //       title: const Text(kIsWeb ? 'LCNF Web' : 'LCNF App'),
+  //     ),
+  //     body: Center(
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         children: <Widget>[
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: Text(location)),
+  //           const SizedBox(height: 20),
+  //           ElevatedButton(
+  //             onPressed: _getCurrentLocation,
+  //             child: const Text('Get Location'),
+  //           ),
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: ElevatedButton(
+  //               onPressed: () async {
+  //                 result = await FilePicker.platform.pickFiles(
+  //                     withData: true,
+  //                     allowMultiple: false,
+  //                     type: FileType.image);
+  //                 if (result == null) {
+  //                    print("No file selected");
+  //                 } else {
+  //                   setState(() {});
+  //                   for (var element in result!.files) {
+  //                     print(element.name);
+  //                     imageUpload(element.bytes, element.name, false);
+  //                   }
+  //                 }
+  //                 }, child: const Text("Pick Image"),
+  //               ),
+  //             ),
+  //           Expanded(
+  //               child: GridView.count(
+  //                 primary: false,
+  //                 padding: const EdgeInsets.all(20),
+  //                 crossAxisSpacing: 10,
+  //                 mainAxisSpacing: 10,
+  //                 crossAxisCount: 2,
+  //                 children:
+  //                   images.map((value) {
+  //                     return Container(
+  //                       alignment: Alignment.center,
+  //                       margin: EdgeInsets.all(8),
+  //                       decoration: BoxDecoration(border: Border.all(color: Colors.black),),
+  //                       // child: Image.network('https://picsum.photos/250?image=9'),
+  //                       child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
+  //
+  //                     );
+  //                   }).toList(),
+  //             )
+  //           ),
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child:
+  //               Signature(
+  //                 controller: _controller,
+  //                 height: 150,
+  //                 width: 150,
+  //                 backgroundColor: Colors.black12,
+  //             ),
+  //           ),
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child:
+  //             ElevatedButton(
+  //               onPressed: () async {
+  //                 if (_controller.isNotEmpty) {
+  //                   final Uint8List? data =
+  //                   await _controller.toPngBytes();
+  //                   if (data != null) {
+  //                     await imageUpload(data, 'Signature.png', true);
+  //                   }
+  //                 }
+  //               },
+  //               child: const Text('Save Signature'),
+  //             ),
+  //           ),
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child:
+  //             ElevatedButton(
+  //               onPressed: () async {
+  //                 if (_controller.isNotEmpty) {
+  //                    _controller.undo();
+  //                 }
+  //               },
+  //               child: const Text('Undo Signature'),
+  //             ),
+  //           ),
+  //           Expanded(
+  //               child: GridView.count(
+  //                 primary: false,
+  //                 padding: const EdgeInsets.all(20),
+  //                 crossAxisSpacing: 10,
+  //                 mainAxisSpacing: 10,
+  //                 crossAxisCount: 2,
+  //                 children:
+  //                 signatures.map((value) {
+  //                   return Container(
+  //                     alignment: Alignment.center,
+  //                     margin: EdgeInsets.all(8),
+  //                     decoration: BoxDecoration(border: Border.all(color: Colors.black),),
+  //                     // child: Image.network('https://picsum.photos/250?image=9'),
+  //                     child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
+  //
+  //                   );
+  //                 }).toList(),
+  //               )
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
 
   @override
@@ -164,19 +289,17 @@ class _LocationPageState extends State<LocationPage> {
         backgroundColor: Colors.blue,
         title: const Text(kIsWeb ? 'LCNF Web' : 'LCNF App'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Text(location)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _getCurrentLocation,
-              child: const Text('Get Location'),
-            ),
-            Padding(
+      body: ListView(
+
+          children: <Widget> [
+            Align(child: Padding(padding: const EdgeInsets.only(top: 10.0),
+                child: Text(location)),),
+                const SizedBox(height: 20),
+           Align(child:  ElevatedButton(
+             onPressed: _getCurrentLocation,
+             child: const Text('Get Location'),
+           ),),
+            Align(child: Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: ElevatedButton(
                 onPressed: () async {
@@ -185,7 +308,7 @@ class _LocationPageState extends State<LocationPage> {
                       allowMultiple: false,
                       type: FileType.image);
                   if (result == null) {
-                     print("No file selected");
+                    print("No file selected");
                   } else {
                     setState(() {});
                     for (var element in result!.files) {
@@ -193,18 +316,71 @@ class _LocationPageState extends State<LocationPage> {
                       imageUpload(element.bytes, element.name, false);
                     }
                   }
-                  }, child: const Text("Pick Image"),
+                }, child: const Text("Pick Image"),
+              ),
+            ),),
+            GridView.count(
+              crossAxisCount: 3,
+              physics: NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+              shrinkWrap: true, // You won't see infinite size error
+              children: images.map((value) {
+                        return Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.all(8),
+                          decoration: BoxDecoration(border: Border.all(color: Colors.black),),
+                          // child: Image.network('https://picsum.photos/250?image=9'),
+                          child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
+
+                        );
+                      }).toList(),
+            ),
+    Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child:
+                  Signature(
+                    controller: _controller,
+                    height: 150,
+                    width: 150,
+                    backgroundColor: Colors.black12,
                 ),
               ),
-            Expanded(
-                child: GridView.count(
-                  primary: false,
-                  padding: const EdgeInsets.all(20),
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 2,
-                  children:
-                    images.map((value) {
+              Align(child:Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child:
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_controller.isNotEmpty) {
+                      final Uint8List? data =
+                      await _controller.toPngBytes();
+                      if (data != null) {
+                        await imageUpload(data, 'Signature.png', true);
+                      }
+                    }
+                  },
+                  child: const Text('Save Signature'),
+                ),
+              ),),
+            Align(
+              child:  Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child:
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_controller.isNotEmpty) {
+                      _controller.undo();
+                    }
+                  },
+                  child: const Text('Undo Signature'),
+                ),
+              ),),
+            GridView.count(
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              crossAxisCount: 3,
+
+              physics: NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+              shrinkWrap: true, // You won't see infinite size error
+              children:   signatures.map((value) {
                       return Container(
                         alignment: Alignment.center,
                         margin: EdgeInsets.all(8),
@@ -214,59 +390,15 @@ class _LocationPageState extends State<LocationPage> {
 
                       );
                     }).toList(),
-              )
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child:
-                Signature(
-                  controller: _controller,
-                  height: 250,
-                  backgroundColor: Colors.black12,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child:
-              ElevatedButton(
-                onPressed: () async {
-                  if (_controller.isNotEmpty) {
-                    final Uint8List? data =
-                    await _controller.toPngBytes();
-                    if (data != null) {
-                      await imageUpload(data, 'Signature.png', true);
-                    }
-                  }
-                },
-                child: const Text('Save Signature'),
-              ),
-            ),
-            Expanded(
-                child: GridView.count(
-                  primary: false,
-                  padding: const EdgeInsets.all(20),
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 2,
-                  children:
-                  signatures.map((value) {
-                    return Container(
-                      alignment: Alignment.center,
-                      margin: EdgeInsets.all(8),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.black),),
-                      // child: Image.network('https://picsum.photos/250?image=9'),
-                      child: Image.network('${APIService.instance.baseUrl}/${value["url"].replaceAll("files", "images")}'),
 
-                    );
-                  }).toList(),
-                )
-            ),
+
+
           ],
-        ),
-      ),
+        )
+
     );
   }
-
   void _showLocationEnableDialog() {
     showDialog(
       context: context,
